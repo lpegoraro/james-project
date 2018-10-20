@@ -1,24 +1,26 @@
 package org.apache.james.jpa.healthcheck;
 
-import com.github.fge.lambdas.Throwing;
-import org.apache.james.backends.jpa.TransactionRunner;
 import org.apache.james.core.healthcheck.ComponentName;
 import org.apache.james.core.healthcheck.HealthCheck;
 import org.apache.james.core.healthcheck.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import java.util.concurrent.TimeoutException;
+
+import static org.apache.james.core.healthcheck.Result.healthy;
+import static org.apache.james.core.healthcheck.Result.unhealthy;
 
 
 public class JPAHealthCheck implements HealthCheck {
 
-    private final TransactionRunner transactionRunner;
+    private static final Logger LOGGER = LoggerFactory.getLogger(JPAHealthCheck.class);
+    private final EntityManagerFactory entityManagerFactory;
 
     @Inject
     public JPAHealthCheck(EntityManagerFactory entityManagerFactory) {
-        this.transactionRunner = new TransactionRunner(entityManagerFactory);
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     @Override
@@ -28,17 +30,16 @@ public class JPAHealthCheck implements HealthCheck {
 
     @Override
     public Result check() {
+        LOGGER.debug("Checking it EntityManager is created successfully");
         try {
-            transactionRunner.run(
-                    Throwing.<EntityManager>consumer(entityManager -> {
-                        entityManager.createNativeQuery("SELECT CURRENT_TIME()");
-                    }).sneakyThrow());
-        } catch (TimeoutException ex) {
-            return Result.unhealthy(componentName());
+            if (entityManagerFactory.createEntityManager().isOpen()) {
+                LOGGER.debug("EntityManager can execute queries, the connection is healthy");
+                return healthy(componentName());
+            }
+        } catch (IllegalStateException stateException) {
+            LOGGER.debug("EntityManagerFactory or EntityManager thrown an IllegalStateException, the connection is unhealthy");
+            return unhealthy(componentName());
         }
-        return Result.healthy(componentName());
+        return unhealthy(componentName());
     }
-
-    ª
-
 }
