@@ -30,7 +30,7 @@ public class JPAHealthCheck implements HealthCheck {
 
     @Override
     public Result check() {
-        LOGGER.debug("Checking it EntityManager is created successfully");
+        LOGGER.debug("Checking if EntityManager is created successfully");
         try {
             if (entityManagerFactory.createEntityManager().isOpen()) {
                 LOGGER.debug("EntityManager can execute queries, the connection is healthy");

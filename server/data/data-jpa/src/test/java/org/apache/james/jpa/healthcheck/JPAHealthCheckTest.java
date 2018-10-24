@@ -9,7 +9,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.persistence.EntityManagerFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 @ExtendWith(JPAHealthCheckExtension.class)
 class JPAHealthCheckTest {
@@ -20,15 +22,13 @@ class JPAHealthCheckTest {
     void testWhenActive() {
         final JpaTestCluster JPA_TEST_CLUSTER = JpaTestCluster.create(JPAUrl.class);
         jpaHealthCheck = new JPAHealthCheck(JPA_TEST_CLUSTER.getEntityManagerFactory());
-        assertEquals(Result.healthy(jpaHealthCheck.componentName()),
-                jpaHealthCheck.check(), "Result should be healthy");
+        assertThat("Health check should be healthy", jpaHealthCheck.check(), is(equalTo(Result.healthy(jpaHealthCheck.componentName()))));
     }
 
     @Test
     void testWhenInactive() {
         jpaHealthCheck = new JPAHealthCheck((EntityManagerFactory)
                 new EntityManagerFactoryImpl().getBrokerFactory());
-        assertEquals(Result.unhealthy(jpaHealthCheck.componentName()),
-                jpaHealthCheck.check(), "Result should be unhealthy");
+        assertThat("Health check should be healthy", jpaHealthCheck.check(), is(equalTo(Result.unhealthy(jpaHealthCheck.componentName()))));
     }
 }
