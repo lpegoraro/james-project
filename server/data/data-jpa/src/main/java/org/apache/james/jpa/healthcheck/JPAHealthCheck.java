@@ -1,13 +1,13 @@
 package org.apache.james.jpa.healthcheck;
 
+import javax.inject.Inject;
+import javax.persistence.EntityManagerFactory;
+
 import org.apache.james.core.healthcheck.ComponentName;
 import org.apache.james.core.healthcheck.HealthCheck;
 import org.apache.james.core.healthcheck.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManagerFactory;
 
 import static org.apache.james.core.healthcheck.Result.healthy;
 import static org.apache.james.core.healthcheck.Result.unhealthy;
