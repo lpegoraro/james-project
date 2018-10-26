@@ -1,5 +1,7 @@
 package org.apache.james.jpa.healthcheck;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import javax.persistence.EntityManagerFactory;
 
 import org.apache.james.backends.jpa.JpaTestCluster;
@@ -9,8 +11,6 @@ import org.apache.james.mailrepository.jpa.JPAUrl;
 import org.apache.openjpa.persistence.EntityManagerFactoryImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(JPAHealthCheckExtension.class)
 class JPAHealthCheckTest {
