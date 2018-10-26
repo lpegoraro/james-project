@@ -1,5 +1,7 @@
 package org.apache.james.jpa.healthcheck;
 
+import javax.persistence.EntityManagerFactory;
+
 import org.apache.james.backends.jpa.JpaTestCluster;
 import org.apache.james.core.healthcheck.Result;
 import org.apache.james.core.healthcheck.ResultStatus;
@@ -7,8 +9,6 @@ import org.apache.james.mailrepository.jpa.JPAUrl;
 import org.apache.openjpa.persistence.EntityManagerFactoryImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import javax.persistence.EntityManagerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,8 +22,9 @@ class JPAHealthCheckTest {
         final JpaTestCluster JPA_TEST_CLUSTER = JpaTestCluster.create(JPAUrl.class);
         jpaHealthCheck = new JPAHealthCheck(JPA_TEST_CLUSTER.getEntityManagerFactory());
         Result result = jpaHealthCheck.check();
-        assertThat(result).as("Status %s should be %s", result.getStatus(), ResultStatus.HEALTHY.name())
-                .isEqualTo(ResultStatus.HEALTHY);
+        ResultStatus healthy = ResultStatus.HEALTHY;
+        assertThat(result.getStatus()).as("Result %s status should be %s", result.getStatus(), healthy)
+                .isEqualTo(healthy);
     }
 
     @Test
@@ -31,7 +32,8 @@ class JPAHealthCheckTest {
         jpaHealthCheck = new JPAHealthCheck((EntityManagerFactory)
                 new EntityManagerFactoryImpl().getBrokerFactory());
         Result result = jpaHealthCheck.check();
-        assertThat(result).as("Status %s should be %s", result.getStatus(), ResultStatus.UNHEALTHY.name())
-                .isEqualTo(ResultStatus.UNHEALTHY);
+        ResultStatus unhealthy = ResultStatus.UNHEALTHY;
+        assertThat(result.getStatus()).as("Result %s status should be %s", result.getStatus(), unhealthy)
+                .isEqualTo(unhealthy);
     }
 }
