@@ -1,6 +1,7 @@
 package org.apache.james.jpa.healthcheck;
 
 import javax.persistence.EntityManagerFactory;
+
 import org.apache.james.backends.jpa.JpaTestCluster;
 import org.apache.james.core.healthcheck.Result;
 import org.apache.james.core.healthcheck.ResultStatus;
