@@ -4,7 +4,11 @@ import org.apache.james.backends.jpa.JpaTestCluster;
 import org.apache.james.mailrepository.api.MailRepositoryUrlStore;
 import org.apache.james.mailrepository.jpa.JPAMailRepositoryUrlStore;
 import org.apache.james.mailrepository.jpa.JPAUrl;
-import org.junit.jupiter.api.extension.*;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
 
 public class JPAHealthCheckExtension implements ParameterResolver, AfterEachCallback {
     private static final JpaTestCluster JPA_TEST_CLUSTER = JpaTestCluster.create(JPAUrl.class);
