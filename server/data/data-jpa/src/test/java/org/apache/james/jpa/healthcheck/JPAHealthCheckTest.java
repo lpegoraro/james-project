@@ -1,14 +1,30 @@
+/****************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *
+ * under the License.                                           *
+ ****************************************************************/
 package org.apache.james.jpa.healthcheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import javax.persistence.EntityManagerFactory;
 
 import org.apache.james.backends.jpa.JpaTestCluster;
 import org.apache.james.core.healthcheck.Result;
 import org.apache.james.core.healthcheck.ResultStatus;
 import org.apache.james.mailrepository.jpa.JPAUrl;
-import org.apache.openjpa.persistence.EntityManagerFactoryImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -16,11 +32,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 class JPAHealthCheckTest {
 
     private JPAHealthCheck jpaHealthCheck;
+    private JpaTestCluster jpaTestCluster;
+
+    @BeforeEach
+    void setUp() {
+        jpaTestCluster = JpaTestCluster.create(JPAUrl.class);
+        jpaHealthCheck = new JPAHealthCheck(jpaTestCluster.getEntityManagerFactory());
+    }
 
     @Test
     void testWhenActive() {
-        final JpaTestCluster JPA_TEST_CLUSTER = JpaTestCluster.create(JPAUrl.class);
-        jpaHealthCheck = new JPAHealthCheck(JPA_TEST_CLUSTER.getEntityManagerFactory());
         Result result = jpaHealthCheck.check();
         ResultStatus healthy = ResultStatus.HEALTHY;
         assertThat(result.getStatus()).as("Result %s status should be %s", result.getStatus(), healthy)
@@ -29,8 +50,7 @@ class JPAHealthCheckTest {
 
     @Test
     void testWhenInactive() {
-        jpaHealthCheck = new JPAHealthCheck((EntityManagerFactory)
-                new EntityManagerFactoryImpl().getBrokerFactory());
+        jpaTestCluster.getEntityManagerFactory().close();
         Result result = jpaHealthCheck.check();
         ResultStatus unhealthy = ResultStatus.UNHEALTHY;
         assertThat(result.getStatus()).as("Result %s status should be %s", result.getStatus(), unhealthy)
