@@ -19,20 +19,24 @@
 package org.apache.james.jpa.healthcheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import org.apache.james.backends.jpa.JpaTestCluster;
 import org.apache.james.core.healthcheck.Result;
 import org.apache.james.core.healthcheck.ResultStatus;
 import org.apache.james.mailrepository.jpa.JPAUrl;
+import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.rules.ExpectedException;
 
-@ExtendWith(JPAHealthCheckExtension.class)
 class JPAHealthCheckTest {
 
     private JPAHealthCheck jpaHealthCheck;
     private JpaTestCluster jpaTestCluster;
+
+    @Rule
+    ExpectedException expectedException = ExpectedException.none();
 
     @BeforeEach
     void setUp() {
@@ -51,7 +55,12 @@ class JPAHealthCheckTest {
     @Test
     void testWhenInactive() {
         jpaTestCluster.getEntityManagerFactory().close();
-        Result result = jpaHealthCheck.check();
+        Result result = Result.healthy(jpaHealthCheck.componentName());
+        try {
+            result = jpaHealthCheck.check();
+        } catch (IllegalStateException e) {
+            fail("The exception of the EMF was not handled property.ª");
+        }
         ResultStatus unhealthy = ResultStatus.UNHEALTHY;
         assertThat(result.getStatus()).as("Result %s status should be %s", result.getStatus(), unhealthy)
                 .isEqualTo(unhealthy);
